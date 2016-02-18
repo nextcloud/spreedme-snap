@@ -1,0 +1,5 @@
+/parts
+/stage
+/snap
+/*.snap
+/test/config/*.conf

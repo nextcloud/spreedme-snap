@@ -1,0 +1,93 @@
+#!/bin/sh
+
+set -e
+umask 027
+
+SERVER_CONF="$SNAP_APP_DATA_PATH/server.conf"
+START_CONF="$SNAP_APP_DATA_PATH/start.conf"
+CONFIG_MARK="$SNAP_APP_DATA_PATH/version.2"
+
+SPREED_WEBRTC_PID=
+REDIRECTOR_PID=
+
+TLS_KEY="$SNAP_APP_DATA_PATH/tls.key"
+TLS_CERT="$SNAP_APP_DATA_PATH/tls.crt"
+
+TLS_DAYS=3650
+TLS_BITS=2048
+
+OPENSSL="/usr/bin/openssl"
+RANDFILE="$SNAP_APP_DATA_PATH/.rnd"
+export RANDFILE
+
+cleanup () {
+	trap "" EXIT
+	echo "Stopping ..."
+	if [ -n "$REDIRECTOR_PID" ]; then
+		kill -TERM $REDIRECTOR_PID 2>/dev/null
+	fi
+	if [ -n "$SPREED_WEBRTC_PID" ]; then
+		kill -TERM $SPREED_WEBRTC_PID 2>/dev/null
+	fi
+	rm -f "$SNAP_APP_TMPDIR/spreed-webrtc.conf"
+	echo "Done."
+}
+trap "cleanup" INT QUIT TERM EXIT
+
+config () {
+	if [ ! -e "$START_CONF" -o ! -e "$SERVER_CONF" -o ! -e "$CONFIG_MARK" ]; then
+		echo "Updating configuraion ..."
+		"$SNAP_APP_PATH/bin/config" update >/dev/null
+		touch "$CONFIG_MARK"
+	fi
+	if [ -e "$START_CONF" ]; then
+		. "$START_CONF"
+	fi
+}
+
+make_tls_key_and_cert () {
+	if grep -Fxq "https = off" "$SERVER_CONF"; then
+		return
+	fi
+	if [ ! -e "$TLS_CERT" ]; then
+		# Create self signed TLS certificate.
+		rm -f "$TLS_KEY"
+		$OPENSSL req -new -x509 -nodes -newkey rsa:$TLS_BITS \
+			-keyout "$TLS_KEY" \
+			-out "$TLS_CERT" -days $TLS_DAYS \
+			-config "$SNAP_APP_PATH/ssleay.cnf" -sha256 -extensions req_v3
+	fi
+}
+
+# Create random strings.
+#sessionSecret=$($OPENSSL rand -hex 32)
+#encryptionSecret=$($OPENSSL rand -hex 24)
+#serverToken=$($OPENSSL rand -hex 16)
+
+spreed_webrtc () {
+	# Create runtime configuration.
+	sed "\
+	s|root = .*|root = $SNAP_APP_PATH/share/spreed-webrtc-server/www|; \
+	s|key = .*|key = $TLS_KEY|; \
+	s|certificate = .*|certificate = $TLS_CERT|; \
+	" $SERVER_CONF > "$SNAP_APP_TMPDIR/spreed-webrtc.conf"
+
+	"$SNAP_APP_PATH/sbin/spreed-webrtc-server" -c "$SNAP_APP_TMPDIR/spreed-webrtc.conf" &
+	SPREED_WEBRTC_PID=$!
+}
+
+redirector () {
+	if [ -z "$REDIRECTOR_PORT" -o -z "$WEBAPP_PORT" ]; then
+		return
+	fi
+	"$SNAP_APP_PATH/bin/redirector" --port $REDIRECTOR_PORT $WEBAPP_PORT &
+	REDIRECTOR_PID=$!
+}
+
+make_tls_key_and_cert
+config
+redirector
+spreed_webrtc
+
+echo "Running $SPREED_WEBRTC_PID ..."
+wait $SPREED_WEBRTC_PID

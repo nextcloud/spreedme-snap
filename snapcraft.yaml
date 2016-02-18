@@ -1,0 +1,37 @@
+name: spreed-webrtc
+version: 0.24.11-1
+summary: WebRTC audio/video calls and conferences
+description: Spreed WebRTC implements a WebRTC audio/video call and conferencing server and web client
+icon: spreedWaves.svg
+
+apps:
+  spreed-webrtc:
+    command: bin/start
+    daemon: simple
+    uses: [listener-service]
+
+uses:
+  listener-service:
+    type: migration-skill
+    caps: [network-listener, network-service]
+
+config: bin/config
+
+parts:
+  spreed:
+    plugin: autotools
+    source: https://github.com/strukturag/spreed-webrtc
+    source-type: git
+    source-branch: develop
+    build-packages: [golang-go, nodejs]
+  glue:
+    plugin: copy
+    files:
+      start: bin/start
+      ssleay.cnf: ssleay.cnf
+      redirector: bin/redirector
+  config:
+    plugin: copy
+    files:
+      config.py: bin/config
+      server.conf.in: server.conf.in
