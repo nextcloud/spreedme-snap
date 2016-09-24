@@ -39,6 +39,7 @@ Install it locally
 This downloads the app from the Ubuntu app store
 
 `$ sudo snap install spreed-webrtc`
-----
 
+
+----
 Spreed-WebRTC (c)2016 struktur AG
