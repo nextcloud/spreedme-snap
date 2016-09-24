@@ -3,21 +3,25 @@
 set -e
 umask 027
 
-SERVER_CONF="$SNAP_APP_DATA_PATH/server.conf"
-START_CONF="$SNAP_APP_DATA_PATH/start.conf"
-CONFIG_MARK="$SNAP_APP_DATA_PATH/version.2"
+# Create a tmp folder
+TMPDIR="$SNAP_COMMON/tmp"
+mkdir -p -m 750 $TMPDIR
 
-SPREED_WEBRTC_PID=
-REDIRECTOR_PID=
+SERVER_CONF="$SNAP_DATA/server.conf"
+START_CONF="$SNAP_DATA/start.conf"
+CONFIG_MARK="$SNAP_DATA/version.2"
 
-TLS_KEY="$SNAP_APP_DATA_PATH/tls.key"
-TLS_CERT="$SNAP_APP_DATA_PATH/tls.crt"
+SPREED_WEBRTC_PID="$SNAP_DATA/spreed.pid"
+REDIRECTOR_PID="$SNAP_DATA/redirector.pid"
+
+TLS_KEY="$SNAP_DATA/tls.key"
+TLS_CERT="$SNAP_DATA/tls.crt"
 
 TLS_DAYS=3650
 TLS_BITS=2048
 
 OPENSSL="/usr/bin/openssl"
-RANDFILE="$SNAP_APP_DATA_PATH/.rnd"
+RANDFILE="$SNAP_DATA/.rnd"
 export RANDFILE
 
 cleanup () {
@@ -29,7 +33,7 @@ cleanup () {
 	if [ -n "$SPREED_WEBRTC_PID" ]; then
 		kill -TERM $SPREED_WEBRTC_PID 2>/dev/null
 	fi
-	rm -f "$SNAP_APP_TMPDIR/spreed-webrtc.conf"
+	rm -f "$TMPDIR/spreed-webrtc.conf"
 	echo "Done."
 }
 trap "cleanup" INT QUIT TERM EXIT
@@ -37,7 +41,7 @@ trap "cleanup" INT QUIT TERM EXIT
 config () {
 	if [ ! -e "$START_CONF" -o ! -e "$SERVER_CONF" -o ! -e "$CONFIG_MARK" ]; then
 		echo "Updating configuraion ..."
-		"$SNAP_APP_PATH/bin/config" update >/dev/null
+		"$SNAP/bin/config" update >/dev/null
 		touch "$CONFIG_MARK"
 	fi
 	if [ -e "$START_CONF" ]; then
@@ -55,7 +59,7 @@ make_tls_key_and_cert () {
 		$OPENSSL req -new -x509 -nodes -newkey rsa:$TLS_BITS \
 			-keyout "$TLS_KEY" \
 			-out "$TLS_CERT" -days $TLS_DAYS \
-			-config "$SNAP_APP_PATH/ssleay.cnf" -sha256 -extensions req_v3
+			-config "$SNAP/ssleay.cnf" -sha256 -extensions req_v3
 	fi
 }
 
@@ -67,12 +71,12 @@ make_tls_key_and_cert () {
 spreed_webrtc () {
 	# Create runtime configuration.
 	sed "\
-	s|root = .*|root = $SNAP_APP_PATH/share/spreed-webrtc-server/www|; \
+	s|root = .*|root = $SNAP/share/spreed-webrtc-server/www|; \
 	s|key = .*|key = $TLS_KEY|; \
 	s|certificate = .*|certificate = $TLS_CERT|; \
-	" $SERVER_CONF > "$SNAP_APP_TMPDIR/spreed-webrtc.conf"
+	" $SERVER_CONF > "$TMPDIR/spreed-webrtc.conf"
 
-	"$SNAP_APP_PATH/sbin/spreed-webrtc-server" -c "$SNAP_APP_TMPDIR/spreed-webrtc.conf" &
+	"$SNAP/sbin/spreed-webrtc-server" -c "$TMPDIR/spreed-webrtc.conf" &
 	SPREED_WEBRTC_PID=$!
 }
 
@@ -80,7 +84,7 @@ redirector () {
 	if [ -z "$REDIRECTOR_PORT" -o -z "$WEBAPP_PORT" ]; then
 		return
 	fi
-	"$SNAP_APP_PATH/bin/redirector" --port $REDIRECTOR_PORT $WEBAPP_PORT &
+	"$SNAP/bin/redirector" --port $REDIRECTOR_PORT $WEBAPP_PORT &
 	REDIRECTOR_PID=$!
 }
 

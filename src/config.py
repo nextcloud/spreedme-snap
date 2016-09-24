@@ -8,12 +8,12 @@ import subprocess
 import sys
 import yaml
 
-SPREED_WEBRTC_DATA_PATH = os.environ['SNAP_APP_DATA_PATH']
+SPREED_WEBRTC_DATA_PATH = os.environ['SNAP_DATA']
 SPREED_WEBRTC_VERSION = os.environ['SNAP_VERSION']
 SPREED_WEBRTC_CONFIG_FILE = os.path.join(SPREED_WEBRTC_DATA_PATH,
                                          'server.conf')
 START_CONFIG_FILE = os.path.join(SPREED_WEBRTC_DATA_PATH, 'start.conf')
-SPREED_WEBRTC_CONFIG_FILE_IN = os.path.join(os.environ['SNAP_APP_PATH'],
+SPREED_WEBRTC_CONFIG_FILE_IN = os.path.join(os.environ['SNAP'],
                                             'server.conf.in')
 
 DEFAULT_REDIRECTOR_PORT = 8000
@@ -22,7 +22,7 @@ DEFAULT_HTTPS_PORT = 8443
 
 OPENSSL = "/usr/bin/openssl"
 if not os.path.exists(OPENSSL):
-    OPENSSL = os.path.join(os.path.join(os.environ['SNAP_APP_PATH'],
+    OPENSSL = os.path.join(os.path.join(os.environ['SNAP'],
                                         'usr', 'bin', 'openssl'))
 
 

@@ -1,17 +1,44 @@
 # Spreed WebRTC snap
 
-This repository can be used to build a Spreed WebRTC snap for Ubuntu Snappy 16.04 by using
-[Snapcraft](https://github.com/ubuntu-core/snapcraft).
+## Description
 
-## Build requirements
+Chat and make audio/video calls using [Spreed WebRTC](https://github.com/strukturag/spreed-webrtc/) on Ubuntu Snappy.
 
- - Snapcraft 2.2
- - Ubuntu 16.04
+A good hardware companion for this Snap is the [Nextcloud Box](https://nextcloud.com/box) which comes with a 1TB hard drive and Nextcloud, a next-generation Files, Sync and Share solution.
 
-## Building
+If you are a user, just wanting a secure and private alternative for online communication make sure to check out the [Spreedbox](http://spreedbox.com/), providing a ready to use hardware with Spreed WebRTC included.
+
+## Authors
+
+* [Simon Eisenmann](https://github.com/longsleep)
+* [Olivier Paroz](https://github.com/oparoz)
+
+## Compilation
+
+*Prerequisite: You need to have both snapcraft and snapd installed. See https://snapcraft.io*
+
+Download the source
+
+`$ git clone https://github.com/oparoz/spreed-webrtc-snap`
+
+Compile the snap
 
 ```bash
-$ snapcraft snap
+$ cd spreed-webrtc-snap
+$ sudo snapcraft
 ```
 
--- (c)2016 struktur AG
+Install it locally
+
+`$ sudo snap install spreed-webrtc_0.28.1-1_amd64.snap --force-dangerous`
+
+*Note: Replace the filename with the one which has been generated*
+
+## Installation
+
+This downloads the app from the Ubuntu app store
+
+`$ sudo snap install spreed-webrtc`
+----
+
+Spreed-WebRTC (c)2016 struktur AG
