@@ -40,6 +40,13 @@ This downloads the app from the Ubuntu app store
 
 `$ sudo snap install spreed-webrtc`
 
+## How to use
+
+### Web interface
+
+Go with your browser to the URL of the device on which the snap was installed, but use port 8443.
+
+Per example: `http://nextcloud.local:8443`
 
 ----
 Spreed-WebRTC (c)2016 struktur AG
