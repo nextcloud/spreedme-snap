@@ -119,15 +119,11 @@ def load_config():
     else:
         spreed_config.read(SPREED_WEBRTC_CONFIG_FILE_IN)
         # Add our defaults.
-        try:
-            spreed_config.remove_option('http', 'listen')
-        except configparser.NoSectionError:
-            pass
         spreed_config['http']['root'] = 'www'  # Will be replaced on start.
         spreed_config['https']['listen'] = ':%s' % DEFAULT_HTTPS_PORT
         spreed_config['https']['certificate'] = 'tls.crt'
         spreed_config['https']['key'] = 'tls.key'
-        spreed_config['https']['minVersion'] = 'TLSv1'
+        spreed_config['https']['minVersion'] = 'TLSv1.2'
         spreed_config['app']['sessionSecret'] = get_random_hex(64)
         spreed_config['app']['encryptionSecret'] = get_random_hex(32)
         spreed_config['app']['serverToken'] = get_random_hex(16)
