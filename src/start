@@ -72,6 +72,7 @@ spreed_webrtc () {
 	# Create runtime configuration.
 	sed "\
 	s|root = .*|root = $SNAP/share/spreed-webrtc-server/www|; \
+	s|extra = .*|extra = $SNAP/extra|; \
 	s|key = .*|key = $TLS_KEY|; \
 	s|certificate = .*|certificate = $TLS_CERT|; \
 	" $SERVER_CONF > "$TMPDIR/spreed-webrtc.conf"

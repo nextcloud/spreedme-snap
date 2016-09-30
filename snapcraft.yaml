@@ -1,6 +1,6 @@
 name: spreedme
 version: 0.28.1snap1
-summary: Spreed.ME audio/video calls and conferences companion Snap for the Nextcloud Snap
+summary: Spreed.ME audio/video calls and conferences feature for the Nextcloud Snap
 description: Spreed.ME implements a WebRTC audio/video call and conferencing server and web client which is available directly inside Nextcloud
 grade: stable
 confinement: strict
@@ -12,12 +12,29 @@ apps:
     plugs: [network, network-bind]
 
 parts:
+  # Spreed WebRTC server
   spreed:
     plugin: autotools
     source: https://github.com/strukturag/spreed-webrtc.git
     source-type: git
     source-branch: release-0.28
     build-packages: [golang-go, nodejs]
+
+  # Spreed.ME Nextcloud app
+  nextcloud-spreedme:
+    after: [spreed]
+    plugin: dump
+    source: https://github.com/strukturag/nextcloud-spreedme.git
+    source-type: git
+    source-branch: release-0.3
+    filesets:
+      extra:
+        - extra/*
+    stage:
+      - $extra
+    snap:
+      - $extra
+
   glue:
     plugin: dump
     source: src
