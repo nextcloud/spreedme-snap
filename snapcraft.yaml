@@ -35,14 +35,9 @@ parts:
     snap:
       - $extra
 
-  glue:
-    plugin: dump
-    source: src
-    organize:
-      start: bin/start
-      redirector: bin/redirector
   config:
     plugin: dump
     source: src
     organize:
+      start: bin/start
       config.py: bin/config
