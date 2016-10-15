@@ -10,7 +10,7 @@ listen = 127.0.0.1:8080
 ; HTTP socket write timeout in seconds.
 ;writetimeout = 10
 ; Use basePath if the server does not run on the root path (/) of your server.
-basePath = /webrtc/
+basePath = /webrtc
 ; Set maximum number of open files (only works when run as root).
 ;maxfd = 32768
 ; Enable stats API /api/v1/stats for debugging (not for production use!).
