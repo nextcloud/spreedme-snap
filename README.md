@@ -4,8 +4,6 @@
 
 Chat and make audio/video calls straight from Nextcloud using [Spreed WebRTC](https://github.com/strukturag/spreed-webrtc/) on Ubuntu Snappy.
 
-A good hardware companion for this Snap is the [Nextcloud Box](https://nextcloud.com/box) which comes with a 1TB hard drive and Nextcloud, a next-generation Files, Sync and Share solution.
-
 If you are a company wanting a secure and private alternative for online communication make sure to check out the [Spreedbox](http://spreedbox.com/), providing a ready to use hardware with Spreed.ME included.
 
 ## Maintainers
@@ -30,7 +28,7 @@ $ sudo snapcraft
 
 Install it locally
 
-`$ sudo snap install spreedme_0.28.1snap1-1_amd64.snap --force-dangerous`
+`$ sudo snap install spreedme_0.29.2snap1-1_amd64.snap --force-dangerous`
 
 *Note: Replace the filename with the one which has been generated*
 
@@ -42,9 +40,34 @@ This downloads the app from the Ubuntu app store
 
 ## How to use
 
-### 1. Enable SSL for Nextcloud
+### 1. Set up your reverse proxy
 
-Follow the instructions at: [Enabling HTTPS (SSLS, TLS)](https://github.com/nextcloud/nextcloud-snap/wiki/Enabling-HTTPS-(SSLS,-TLS))
+You need to configure your reverse proxy so that Nextcloud can communicate with the snap
+
+#### Apache
+
+Make sure the following modules are installed
+
+* mod_proxy
+* mod_proxy_http
+* mod_proxy_wstunnel
+
+Add an entry in your Nextcloud virtualhost which points the /webrtc directory to the Spreed.ME snap.
+
+```
+	<Location /webrtc>
+		ProxyPass http://127.0.0.1:8080/webrtc
+		ProxyPassReverse /webrtc
+	</Location>
+
+	<Location /webrtc/ws>
+		ProxyPass ws://127.0.0.1:8080/webrtc/ws
+	</Location>
+
+	ProxyVia On
+	ProxyPreserveHost On
+	RequestHeader set X-Forwarded-Proto 'https' env=HTTPS
+```
 
 ### 2. Install the Spreed.ME app
 
@@ -57,16 +80,24 @@ Follow the instructions at: [Enabling HTTPS (SSLS, TLS)](https://github.com/next
 
 #### From the command line (not recommended)
 
-Install via Git
+Go to the Nextcloud sub-folder where you install your apps
 
+**Install via Git**
+
+Clone the Spreed.ME Nextcloud app or download it from https://github.com/strukturag/nextcloud-spreedme/releases
 ```bash
-cd /var/snap/nextcloud/current/nextcloud/extra-apps/
-git clone https://github.com/strukturag/nextcloud-spreedme-git spreedme
+git clone https://github.com/strukturag/nextcloud-spreedme.git spreedme
 ```
 
-Or download from https://github.com/strukturag/nextcloud-spreedme/releases
-and place it in the following path:
-`/var/snap/nextcloud/current/nextcloud/extra-apps/`
+**Install via wget**
+
+```bash
+$ wget https://github.com/strukturag/nextcloud-spreedme/archive/v0.3.3.tar.gz
+$ tar zxvf v0.3.3.tar.gz
+$ mv nextcloud-spreedme-0.3.3 nextcloud-spreedme
+```
+
+*Note: You need to adjust the version number*
 
 ### 3. Configure the Spreed.ME app
 
@@ -77,7 +108,7 @@ and place it in the following path:
 `/var/snap/spreedme/current/server.conf`
 1. In the [users] section, add the shared secret copy-pasted from earlier, like this
 `sharedsecret_secret = bb04fb058e2d7fd19c5bdaa129e7883195f73a9c49414a7eXXXXXXXXXXXXXXXX`
-1. Restart Spreed.ME:
+1. Restart Spreed.ME. On a system using systemd, this can be done like this:
 `$ systemctl restart snap.spreedme.spreed-webrtc.service`
 
 ### 4. Start spreeding!
