@@ -94,7 +94,8 @@ git clone https://github.com/strukturag/nextcloud-spreedme.git spreedme
 ```bash
 $ wget https://github.com/strukturag/nextcloud-spreedme/archive/v0.3.3.tar.gz
 $ tar zxvf v0.3.3.tar.gz
-$ mv nextcloud-spreedme-0.3.3 nextcloud-spreedme
+$ mv nextcloud-spreedme-0.3.3 spreedme
+$ sudo -u www-data php /var/www/nextcloud/occ app:enable spreedme
 ```
 
 *Note: You need to adjust the version number*
@@ -121,6 +122,9 @@ $ mv nextcloud-spreedme-0.3.3 nextcloud-spreedme
 
 * You can create rooms and share the link to other Nextcloud users on the same instance
 * You can define the video quality in the settings panel, after clicking on the wheels icon, top right
+
+### Nextloucd VM
+This snap is included in the [Nextcloud VM](https://github.com/nextcloud/vm) and installed when you boot for the first time.
 
 ----
 Spreed WebRTC & Spreed.ME (c)2016 struktur AG
