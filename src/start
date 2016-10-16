@@ -12,10 +12,6 @@ START_CONF="$SNAP_DATA/start.conf"
 CONFIG_MARK="$SNAP_DATA/version.2"
 
 SPREED_WEBRTC_PID="$SNAP_DATA/spreed.pid"
-REDIRECTOR_PID="$SNAP_DATA/redirector.pid"
-
-TLS_KEY="$SNAP_DATA/tls.key"
-TLS_CERT="$SNAP_DATA/tls.crt"
 
 TLS_DAYS=3650
 TLS_BITS=2048
@@ -27,9 +23,6 @@ export RANDFILE
 cleanup () {
 	trap "" EXIT
 	echo "Stopping ..."
-	if [ -n "$REDIRECTOR_PID" ]; then
-		kill -TERM $REDIRECTOR_PID 2>/dev/null
-	fi
 	if [ -n "$SPREED_WEBRTC_PID" ]; then
 		kill -TERM $SPREED_WEBRTC_PID 2>/dev/null
 	fi
@@ -49,20 +42,6 @@ config () {
 	fi
 }
 
-make_tls_key_and_cert () {
-	if grep -Fxq "https = off" "$SERVER_CONF"; then
-		return
-	fi
-	if [ ! -e "$TLS_CERT" ]; then
-		# Create self signed TLS certificate.
-		rm -f "$TLS_KEY"
-		$OPENSSL req -new -x509 -nodes -newkey rsa:$TLS_BITS \
-			-keyout "$TLS_KEY" \
-			-out "$TLS_CERT" -days $TLS_DAYS \
-			-config "$SNAP/ssleay.cnf" -sha256 -extensions req_v3
-	fi
-}
-
 # Create random strings.
 #sessionSecret=$($OPENSSL rand -hex 32)
 #encryptionSecret=$($OPENSSL rand -hex 24)
@@ -72,25 +51,14 @@ spreed_webrtc () {
 	# Create runtime configuration.
 	sed "\
 	s|root = .*|root = $SNAP/share/spreed-webrtc-server/www|; \
-	s|key = .*|key = $TLS_KEY|; \
-	s|certificate = .*|certificate = $TLS_CERT|; \
+	s|extra = .*|extra = $SNAP/extra|; \
 	" $SERVER_CONF > "$TMPDIR/spreed-webrtc.conf"
 
 	"$SNAP/sbin/spreed-webrtc-server" -c "$TMPDIR/spreed-webrtc.conf" &
 	SPREED_WEBRTC_PID=$!
 }
 
-redirector () {
-	if [ -z "$REDIRECTOR_PORT" -o -z "$WEBAPP_PORT" ]; then
-		return
-	fi
-	"$SNAP/bin/redirector" --port $REDIRECTOR_PORT $WEBAPP_PORT &
-	REDIRECTOR_PID=$!
-}
-
-make_tls_key_and_cert
 config
-redirector
 spreed_webrtc
 
 echo "Running $SPREED_WEBRTC_PID ..."

@@ -10,7 +10,7 @@ listen = 127.0.0.1:8080
 ; HTTP socket write timeout in seconds.
 ;writetimeout = 10
 ; Use basePath if the server does not run on the root path (/) of your server.
-;basePath = /some/sub/path/
+basePath = /webrtc
 ; Set maximum number of open files (only works when run as root).
 ;maxfd = 32768
 ; Enable stats API /api/v1/stats for debugging (not for production use!).
@@ -27,7 +27,7 @@ listen = 127.0.0.1:8080
 ; Full path to PEM encoded private key.
 ;key = server.key
 ; Mimimal supported encryption standard (SSLv3, TLSv1, TLSv1.1 or TLSv1.2).
-minVersion = TLSv1.2
+;minVersion = TLSv1.2
 ; HTTPS socket read timeout in seconds.
 ;readtimeout = 10
 ; HTTPS socket write timeout in seconds.
@@ -44,7 +44,7 @@ minVersion = TLSv1.2
 ; space. If you do not have one use a public one like stun.spreed.me:443. If
 ; you have a TURN server you do not need to set an STUN server as the TURN
 ; server will provide STUN services.
-;stunURIs = stun:stun.spreed.me:443
+stunURIs = stun:stun.spreed.me:443
 ; TURN server URIs in format host:port?transport=udp|tcp. You can provide
 ; multiple seperated by space. If you do not have at least one TURN server then
 ; some users will not be able to use the server as the peer to peer connection
@@ -84,7 +84,7 @@ encryptionSecret = tne-default-encryption-block-key
 ;defaultRoomEnabled = true
 ; Whether a user account is required to join a room. This only has an effect
 ; if user accounts are enabled. Optional, defaults to false.
-;authorizeRoomJoin = false
+authorizeRoomJoin = true
 ; Whether a user account is required to create a room. This only has an effect
 ; if user accounts are enabled. Optional, defaults to false.
 ;authorizeRoomCreation = false
@@ -101,13 +101,13 @@ serverRealm = local
 ; extra-* template slots. If the extra folder has a sub folder "static", the
 ; resources in this static folder will be available as /extra/static/filename
 ; relative to your servers base URL.
-;extra = /usr/share/spreed-webrtc-server/extra
+extra = /usr/share/spreed-webrtc-server/extra
 ; URL relative to the servers base path for a plugin javascript file which is
 ; automatically loaded on web client start for all users. You can put your
 ; plugin in the extra/static folder (see above) or provide another folder using
 ; a front end webserver. Check the doc folder for more info about plugins and
 ; examples.
-;plugin = extra/static/myplugin.js
+plugin = extra/static/owncloud.js
 ; Content-Security-Policy HTTP response header value.
 ; Spreed WebRTC requires inline styles, WebSocket connection to itself and
 ; data: URL for images.
@@ -137,7 +137,7 @@ logfile = spreed-webrtc-server.log
 
 [users]
 ; Set to true to enable user functionality.
-enabled = false
+enabled = true
 ; Set users authorization mode.
 ; sharedsecret:
 ;   Validates the userid with a HMAC authentication secret.
@@ -157,10 +157,10 @@ enabled = false
 ;   when allowRegistration is true. While certificate mode offers the highest
 ;   security it is currently considered experimental and the user experience
 ;   varies between browsers and platforms.
-;mode = sharedsecret
+mode = sharedsecret
 ; The shared secred for HMAC validation in "sharedsecret" mode. Best use 32 or
 ; 64 bytes of random data.
-;sharedsecret_secret = some-secret-do-not-keep
+sharedsecret_secret = some-secret-do-not-keep
 ; The HTTP header name where to find the userid in "httpheader" mode.
 ;httpheader_header = x-userid
 ; Full path to PEM encoded private key to use for user creation in "certificate"

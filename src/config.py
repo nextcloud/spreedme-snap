@@ -16,9 +16,7 @@ START_CONFIG_FILE = os.path.join(SPREED_WEBRTC_DATA_PATH, 'start.conf')
 SPREED_WEBRTC_CONFIG_FILE_IN = os.path.join(os.environ['SNAP'],
                                             'server.conf.in')
 
-DEFAULT_REDIRECTOR_PORT = 8000
 DEFAULT_REVERSE_PORT = 8080
-DEFAULT_HTTPS_PORT = 8443
 
 OPENSSL = "/usr/bin/openssl"
 if not os.path.exists(OPENSSL):
@@ -119,15 +117,7 @@ def load_config():
     else:
         spreed_config.read(SPREED_WEBRTC_CONFIG_FILE_IN)
         # Add our defaults.
-        try:
-            spreed_config.remove_option('http', 'listen')
-        except configparser.NoSectionError:
-            pass
         spreed_config['http']['root'] = 'www'  # Will be replaced on start.
-        spreed_config['https']['listen'] = ':%s' % DEFAULT_HTTPS_PORT
-        spreed_config['https']['certificate'] = 'tls.crt'
-        spreed_config['https']['key'] = 'tls.key'
-        spreed_config['https']['minVersion'] = 'TLSv1'
         spreed_config['app']['sessionSecret'] = get_random_hex(64)
         spreed_config['app']['encryptionSecret'] = get_random_hex(32)
         spreed_config['app']['serverToken'] = get_random_hex(16)
@@ -136,8 +126,7 @@ def load_config():
         start_config.read(START_CONFIG_FILE)
     else:
         # Add our defaults.
-        start_config.set("REDIRECTOR_PORT", DEFAULT_REDIRECTOR_PORT)
-        start_config.set("WEBAPP_PORT", DEFAULT_HTTPS_PORT)
+        start_config.set("WEBAPP_PORT", DEFAULT_REVERSE_PORT)
     return spreed_config, start_config
 
 
@@ -149,7 +138,6 @@ def set_config(config_yaml):
 
     app = config.get('app', {})
     http = config.get('http', {})
-    https = config.get('https', {})
     ports = config.get('ports', {})
 
     spreed_config, start_config = load_config()
@@ -178,14 +166,10 @@ def set_config(config_yaml):
     tc('app', 'serverRealm')
     tc('app', 'contentSecurityPolicy')
 
-    tc('https', 'minVersion')
-
     ports_internal = ports.get('internal', {})
     ports_external = ports.get('external', {})
 
     http_reverse = http.get('reverse', gv('http', 'listen') and True)
-    http_ui = http.get('ui', start_config.get('REDIRECTOR_PORT') and True)
-    https_enabled = https.get('enabled', gv('https', 'listen') and True)
 
     if http_reverse:
         port = DEFAULT_REVERSE_PORT
@@ -198,29 +182,6 @@ def set_config(config_yaml):
             spreed_config.remove_option('http', 'listen')
         except configparser.NoSectionError:
             pass
-
-    if http_ui:
-        port = DEFAULT_REDIRECTOR_PORT
-        if 'ui' in ports_external:
-            port = int(ports_external['ui']['port'])
-        start_config.set('REDIRECTOR_PORT', port)
-    else:
-        start_config.set('REDIRECTOR_PORT', '')
-
-    if https_enabled:
-        port = DEFAULT_HTTPS_PORT
-        if 'webapp' in ports_external:
-            port = int(ports_external['webapp']['port'])
-        listen = ":%s" % port
-        sv('https', 'listen', listen)
-        sv('https', 'https', 'on')
-        start_config.set('WEBAPP_PORT', port)
-    else:
-        try:
-            spreed_config.remove_option('https', 'listen')
-        except configparser.NoSectionError:
-            pass
-        sv('https', 'https', 'off')
 
     config_out = {
         'config': {
@@ -237,7 +198,6 @@ def get_config(spreed_config, start_config):
     config = {}
     app = config.setdefault('app', {})
     http = config.setdefault('http', {})
-    https = config.setdefault('https', {})
     ports = {}
 
     if not spreed_config or not start_config:
@@ -258,8 +218,6 @@ def get_config(spreed_config, start_config):
     tc('app', 'serverRealm')
     tc('app', 'contentSecurityPolicy')
 
-    tc('https', 'minVersion')
-
     try:
         http_listen = spreed_config['http'].get('listen', None)
     except KeyError:
@@ -274,30 +232,7 @@ def get_config(spreed_config, start_config):
     else:
         http['reverse'] = False
 
-    try:
-        https_listen = spreed_config['https'].get('listen', None)
-    except KeyError:
-        https_listen = None
-    if https_listen:
-        port = https_listen.rsplit(":", 1)[1]
-        external = ports.setdefault('external', {})
-        external['webapp'] = {
-            'port': int(port)
-        }
-        https['enabled'] = True
-    else:
-        https['enabled'] = False
-
-    redirector_port = start_config.get("REDIRECTOR_PORT",
-                                       DEFAULT_REDIRECTOR_PORT)
-    if redirector_port:
-        http['ui'] = True
-        external = ports.setdefault('external', {})
-        external['ui'] = {
-            'port': int(redirector_port)
-        }
-    else:
-        http['ui'] = False
+    http['ui'] = False
 
     if ports:
         config['ports'] = ports
