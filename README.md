@@ -92,9 +92,9 @@ git clone https://github.com/strukturag/nextcloud-spreedme.git spreedme
 **Install via wget**
 
 ```bash
-$ wget https://github.com/strukturag/nextcloud-spreedme/archive/v0.3.3.tar.gz
-$ tar zxvf v0.3.3.tar.gz
-$ mv nextcloud-spreedme-0.3.3 spreedme
+$ wget https://github.com/strukturag/nextcloud-spreedme/archive/v0.3.5.tar.gz
+$ tar zxvf v0.3.5.tar.gz
+$ mv nextcloud-spreedme-0.3.5 spreedme
 $ sudo -u www-data php /var/www/nextcloud/occ app:enable spreedme
 ```
 
