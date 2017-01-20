@@ -123,7 +123,7 @@ $ sudo -u www-data php /var/www/nextcloud/occ app:enable spreedme
 * You can create rooms and share the link to other Nextcloud users on the same instance
 * You can define the video quality in the settings panel, after clicking on the wheels icon, top right
 
-### Nextloucd VM
+### Nextcloud VM
 This snap is included in the [Nextcloud VM](https://github.com/nextcloud/vm) and installed when you boot for the first time.
 
 ----
