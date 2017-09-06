@@ -1,5 +1,5 @@
 name: spreedme
-version: 0.29.5snap1
+version: 0.29.7snap1
 summary: Spreed.ME audio/video calls and conferences feature for the Nextcloud Snap
 description: Spreed.ME implements a WebRTC audio/video call and conferencing server and web client which is available directly inside Nextcloud
 grade: stable
