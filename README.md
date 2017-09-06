@@ -127,4 +127,4 @@ $ sudo -u www-data php /var/www/nextcloud/occ app:enable spreedme
 This snap is included in the [Nextcloud VM](https://github.com/nextcloud/vm) and installed when you boot for the first time.
 
 ----
-Spreed WebRTC & Spreed.ME (c)2016 struktur AG
+Spreed WebRTC & Spreed.ME (c)2017 struktur AG
