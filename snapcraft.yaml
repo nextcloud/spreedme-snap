@@ -32,7 +32,7 @@ parts:
         - extra/*
     stage:
       - $extra
-    snap:
+    prime:
       - $extra
 
   config:
